@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun } from "lucide-react";
+import { Menu, X, Moon, Sun, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
@@ -15,9 +16,15 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,12 +37,31 @@ export function Navbar() {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [isDark]);
 
+  // Load theme preference on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      setIsDark(true);
+    } else if (savedTheme === "light") {
+      setIsDark(false);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setIsDark(true);
+    }
+  }, []);
+
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsOpen(false);
+  };
 
   return (
     <motion.nav
@@ -109,11 +135,40 @@ export function Navbar() {
               </AnimatePresence>
             </Button>
 
-            <Link to="/apply" className="hidden lg:block">
-              <Button variant="hero" size="lg">
-                Try Risk Analysis
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {profile?.first_name || user.email?.split('@')[0]}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+                    {profile?.role || 'user'}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSignOut}
+                  className="hidden lg:flex rounded-full"
+                >
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/auth" className="hidden lg:block">
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth" className="hidden lg:block">
+                  <Button variant="hero" size="lg">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
@@ -153,11 +208,34 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link to="/apply" onClick={() => setIsOpen(false)} className="block pt-2">
-                <Button variant="hero" className="w-full">
-                  Try Risk Analysis
-                </Button>
-              </Link>
+              
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 px-4 py-3">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">
+                      {profile?.first_name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+                      {profile?.role || 'user'}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth" onClick={() => setIsOpen(false)} className="block pt-2">
+                  <Button variant="hero" className="w-full">
+                    Get Started
+                  </Button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

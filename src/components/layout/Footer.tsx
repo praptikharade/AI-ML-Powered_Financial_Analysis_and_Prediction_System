@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
-import { Shield, Mail, Linkedin, Twitter } from "lucide-react";
+import { Shield, Mail, Linkedin, Twitter, User } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Footer() {
+  const { user } = useAuth();
+
   return (
     <footer className="bg-muted/50 border-t border-border">
       <div className="container mx-auto px-4 lg:px-8 py-12 lg:py-16">
@@ -48,10 +51,37 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Account */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Resources</h4>
+            <h4 className="font-display font-semibold text-foreground mb-4">Account</h4>
             <ul className="space-y-2">
+              {user ? (
+                <>
+                  <li>
+                    <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      My Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/apply" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      New Application
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      Sign In
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      Create Account
+                    </Link>
+                  </li>
+                </>
+              )}
               <li>
                 <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Documentation
@@ -60,16 +90,6 @@ export function Footer() {
               <li>
                 <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   API Reference
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Case Studies
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Research Papers
                 </a>
               </li>
             </ul>

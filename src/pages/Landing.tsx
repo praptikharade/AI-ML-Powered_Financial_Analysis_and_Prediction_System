@@ -10,12 +10,14 @@ import {
   Building2,
   BarChart3,
   Lock,
-  Zap
+  Zap,
+  LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkflowDiagram } from "@/components/ui/WorkflowDiagram";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const features = [
   {
@@ -48,6 +50,8 @@ const targetUsers = [
 ];
 
 export default function Landing() {
+  const { user, profile } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -98,17 +102,36 @@ export default function Landing() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Link to="/apply">
-                <Button variant="hero" size="xl">
-                  Try Risk Analysis
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button variant="heroOutline" size="xl">
-                  View Dashboard
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/apply">
+                    <Button variant="hero" size="xl">
+                      New Risk Assessment
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard">
+                    <Button variant="heroOutline" size="xl">
+                      My Dashboard
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="hero" size="xl">
+                      Get Started Free
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button variant="heroOutline" size="xl">
+                      <LogIn className="h-5 w-5" />
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
             </motion.div>
 
             {/* Target Users */}
