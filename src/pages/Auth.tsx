@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Loader2, Building2, Briefcase } from "lucide-react";
 import { z } from "zod";
@@ -307,6 +307,18 @@ export default function Auth() {
                   )}
                 </Button>
               </form>
+
+              {/* Forgot Password Link */}
+              {mode === "signin" && (
+                <div className="text-center">
+                  <Link
+                    to="/reset-password"
+                    className="text-sm text-primary hover:underline font-medium"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+              )}
 
               {/* Footer Text */}
               <p className="text-center text-sm text-muted-foreground mt-6">

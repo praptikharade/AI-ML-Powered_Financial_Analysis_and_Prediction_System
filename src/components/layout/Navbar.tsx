@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/about", label: "Technology" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -183,23 +184,23 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Right-aligned dropdown */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="lg:hidden bg-background/95 backdrop-blur-lg border-b border-border"
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden absolute right-4 top-16 w-64 bg-card rounded-xl border border-border shadow-lg overflow-hidden"
           >
-            <div className="container mx-auto px-4 py-4 space-y-2">
+            <div className="p-3 space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                  className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive(link.href)
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -209,29 +210,30 @@ export function Navbar() {
                 </Link>
               ))}
               
+              <div className="h-px bg-border my-2" />
+              
               {user ? (
                 <>
-                  <div className="flex items-center gap-2 px-4 py-3">
+                  <div className="flex items-center gap-2 px-4 py-2.5">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-medium text-foreground truncate">
                       {profile?.first_name || user.email?.split('@')[0]}
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize ml-auto">
                       {profile?.role || 'user'}
                     </span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
+                  <button
                     onClick={handleSignOut}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    <LogOut className="h-4 w-4" />
                     Sign Out
-                  </Button>
+                  </button>
                 </>
               ) : (
-                <Link to="/auth" onClick={() => setIsOpen(false)} className="block pt-2">
-                  <Button variant="hero" className="w-full">
+                <Link to="/auth" onClick={() => setIsOpen(false)} className="block">
+                  <Button variant="hero" size="sm" className="w-full">
                     Get Started
                   </Button>
                 </Link>

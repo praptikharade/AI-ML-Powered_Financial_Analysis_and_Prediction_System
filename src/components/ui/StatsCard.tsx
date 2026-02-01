@@ -8,6 +8,7 @@ interface StatsCardProps {
   change?: number;
   icon: LucideIcon;
   trend?: "up" | "down" | "neutral";
+  variant?: "default" | "success" | "warning" | "danger";
   delay?: number;
 }
 
@@ -17,6 +18,7 @@ export function StatsCard({
   change,
   icon: Icon,
   trend = "neutral",
+  variant,
   delay = 0,
 }: StatsCardProps) {
   const trendConfig = {
@@ -37,8 +39,28 @@ export function StatsCard({
     },
   };
 
+  const variantStyles = {
+    default: {
+      iconBg: "bg-primary/10",
+      iconColor: "text-primary",
+    },
+    success: {
+      iconBg: "bg-risk-low/10",
+      iconColor: "text-risk-low",
+    },
+    warning: {
+      iconBg: "bg-risk-medium/10",
+      iconColor: "text-risk-medium",
+    },
+    danger: {
+      iconBg: "bg-risk-high/10",
+      iconColor: "text-risk-high",
+    },
+  };
+
   const config = trendConfig[trend];
   const TrendIcon = config.icon;
+  const vStyles = variantStyles[variant || "default"];
 
   return (
     <motion.div
@@ -48,8 +70,8 @@ export function StatsCard({
       className="bg-card rounded-xl border border-border p-6 hover:shadow-md transition-all duration-300"
     >
       <div className="flex items-start justify-between">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
+        <div className={cn("p-2 rounded-lg", vStyles.iconBg)}>
+          <Icon className={cn("h-5 w-5", vStyles.iconColor)} />
         </div>
         {change !== undefined && (
           <div className={cn("flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium", config.bg, config.color)}>
