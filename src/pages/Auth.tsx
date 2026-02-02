@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, Loader2, Building2, Briefcase } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Loader2, Building2, Briefcase, Eye, EyeOff, Check, X } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 const emailSchema = z.string().email("Please enter a valid email address");
-const passwordSchema = z.string().min(8, "Password must be at least 8 characters");
+
+// Password criteria for signup
+const passwordCriteria = [
+  { key: "length", label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { key: "uppercase", label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { key: "lowercase", label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { key: "number", label: "One number", test: (p: string) => /[0-9]/.test(p) },
+  { key: "special", label: "One special character", test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+];
 
 type AuthMode = "signin" | "signup";
 type AppRole = "borrower" | "lender";
@@ -25,10 +33,21 @@ export default function Auth() {
   const [role, setRole] = useState<AppRole>("borrower");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  // Compute password validity for each criterion
+  const passwordStatus = useMemo(() => {
+    return passwordCriteria.map((c) => ({
+      ...c,
+      met: c.test(password),
+    }));
+  }, [password]);
+
+  const allCriteriaMet = passwordStatus.every((c) => c.met);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -45,9 +64,15 @@ export default function Auth() {
       newErrors.email = emailResult.error.errors[0].message;
     }
 
-    const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
+    if (mode === "signin") {
+      if (password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters";
+      }
+    } else {
+      // Signup: all criteria must pass
+      if (!allCriteriaMet) {
+        newErrors.password = "Password does not meet all criteria";
+      }
     }
 
     setErrors(newErrors);
@@ -274,18 +299,52 @@ export default function Auth() {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
                         setErrors((prev) => ({ ...prev, password: undefined }));
                       }}
-                      className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
+                      className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                   {errors.password && (
                     <p className="text-sm text-destructive">{errors.password}</p>
+                  )}
+
+                  {/* Password Criteria (only on signup) */}
+                  {mode === "signup" && password.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 space-y-1.5 bg-muted/50 rounded-lg p-3"
+                    >
+                      {passwordStatus.map((criterion) => (
+                        <div
+                          key={criterion.key}
+                          className={`flex items-center gap-2 text-xs ${
+                            criterion.met ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                          }`}
+                        >
+                          {criterion.met ? (
+                            <Check className="h-3 w-3" />
+                          ) : (
+                            <X className="h-3 w-3" />
+                          )}
+                          {criterion.label}
+                        </div>
+                      ))}
+                    </motion.div>
                   )}
                 </div>
 
