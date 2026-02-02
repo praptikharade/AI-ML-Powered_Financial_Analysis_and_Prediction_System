@@ -23,6 +23,15 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+type PendingSignupProfile = {
+  email: string;
+  role: AppRole;
+  first_name: string | null;
+  last_name: string | null;
+};
+
+const PENDING_SIGNUP_KEY = 'clarifin.pending_signup_profile';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -30,6 +39,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const readPendingSignup = (): PendingSignupProfile | null => {
+    try {
+      const raw = localStorage.getItem(PENDING_SIGNUP_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw) as PendingSignupProfile;
+    } catch {
+      return null;
+    }
+  };
+
+  const clearPendingSignup = () => {
+    try {
+      localStorage.removeItem(PENDING_SIGNUP_KEY);
+    } catch {
+      // ignore
+    }
+  };
+
+  const savePendingSignup = (pending: PendingSignupProfile) => {
+    try {
+      localStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify(pending));
+    } catch {
+      // ignore
+    }
+  };
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -55,7 +90,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Defer profile fetch with setTimeout to prevent deadlock
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id).then(setProfile);
+            fetchProfile(session.user.id).then(async (p) => {
+              // If the user just verified/logged in after signup, their profile may not exist yet.
+              // Create it lazily using the stored pending signup info.
+              if (!p) {
+                const pending = readPendingSignup();
+                if (pending && pending.email?.toLowerCase() === session.user.email?.toLowerCase()) {
+                  const { error: profileError } = await supabase.from('profiles').insert({
+                    user_id: session.user.id,
+                    role: pending.role,
+                    first_name: pending.first_name,
+                    last_name: pending.last_name,
+                    email: pending.email,
+                  });
+
+                  if (profileError) {
+                    console.error('Error creating profile:', profileError);
+                  } else {
+                    // Also create user_roles entry
+                    const { error: roleError } = await supabase.from('user_roles').insert({
+                      user_id: session.user.id,
+                      role: pending.role,
+                    });
+                    if (roleError) {
+                      console.error('Error creating user role:', roleError);
+                    }
+                    clearPendingSignup();
+                    p = await fetchProfile(session.user.id);
+                  }
+                }
+              }
+
+              setProfile(p);
+            });
           }, 0);
         } else {
           setProfile(null);
@@ -102,29 +169,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
 
-    // Create profile after successful signup
+    // IMPORTANT:
+    // If email confirmation is enabled, the user won't have a session yet.
+    // In that case, inserting into `profiles` will fail RLS (auth.uid() is null).
+    // So we store the intended profile data and create the profile on first real login.
+    savePendingSignup({
+      email,
+      role,
+      first_name: firstName || null,
+      last_name: lastName || null,
+    });
+
+    // If the project is configured to auto-confirm email, we may already have a session.
+    // Try to create the profile immediately (and clear pending info) in that case.
     if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        role,
-        first_name: firstName || null,
-        last_name: lastName || null,
-        email,
-      });
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session?.user?.id === data.user.id) {
+        const { error: profileError } = await supabase.from('profiles').insert({
+          user_id: data.user.id,
+          role,
+          first_name: firstName || null,
+          last_name: lastName || null,
+          email,
+        });
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        return { error: profileError };
-      }
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // keep pending so it can be retried on first login
+          return { error: profileError };
+        }
 
-      // Also create user_roles entry
-      const { error: roleError } = await supabase.from('user_roles').insert({
-        user_id: data.user.id,
-        role,
-      });
+        const { error: roleError } = await supabase.from('user_roles').insert({
+          user_id: data.user.id,
+          role,
+        });
+        if (roleError) {
+          console.error('Error creating user role:', roleError);
+        }
 
-      if (roleError) {
-        console.error('Error creating user role:', roleError);
+        clearPendingSignup();
       }
     }
 
