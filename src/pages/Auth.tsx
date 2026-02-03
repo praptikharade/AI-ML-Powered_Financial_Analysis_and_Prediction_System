@@ -91,12 +91,18 @@ export default function Auth() {
       if (mode === "signin") {
         const { error } = await signIn(email, password);
         if (error) {
+          let description = error.message;
+          
+          if (error.message === "Invalid login credentials") {
+            description = "The email or password you entered is incorrect. Please double-check and try again, or use 'Forgot password' to reset it.";
+          } else if (/email not confirmed/i.test(error.message)) {
+            description = "Your email is not verified yet. Please check your inbox for the verification link.";
+          }
+          
           toast({
             variant: "destructive",
             title: "Sign in failed",
-            description: error.message === "Invalid login credentials" 
-              ? "Invalid email or password. Please try again."
-              : error.message,
+            description,
           });
         } else {
           toast({
