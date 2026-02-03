@@ -10,6 +10,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 
@@ -108,6 +109,16 @@ export default function Auth() {
         const { error } = await signUp(email, password, role, firstName, lastName);
         if (error) {
           let description = error.message;
+
+          // Supabase can throttle confirmation emails if you retry signup too often.
+          // This is not a UI bug; the fix is to wait, use a different email, or disable email confirmations while testing.
+          const rateLimited = /rate limit|over_email_send_rate_limit|too many requests/i.test(error.message);
+
+          if (rateLimited) {
+            description =
+              "Supabase is throttling confirmation emails for now. Wait a minute and try again, or use a different email. For faster testing, disable 'Confirm email' in Supabase Auth settings.";
+          }
+
           if (error.message.includes("already registered")) {
             description = "This email is already registered. Please sign in instead.";
           }
@@ -117,10 +128,21 @@ export default function Auth() {
             description,
           });
         } else {
-          toast({
-            title: "Account created!",
-            description: "Please check your email to verify your account.",
-          });
+          // If email confirmations are OFF, Supabase returns a session immediately.
+          // In that case we can route straight to the correct dashboard.
+          const { data } = await supabase.auth.getSession();
+          if (data.session) {
+            toast({
+              title: "Account created!",
+              description: "You're signed in — redirecting to your dashboard.",
+            });
+            navigate("/dashboard");
+          } else {
+            toast({
+              title: "Account created!",
+              description: "Please check your email to verify your account.",
+            });
+          }
         }
       }
     } finally {
