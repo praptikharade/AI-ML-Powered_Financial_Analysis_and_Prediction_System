@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { z } from "zod";
@@ -18,18 +18,60 @@ type ResetMode = "request" | "update";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   
-  // Check if we're in update mode (have access_token from email link)
-  const accessToken = searchParams.get("access_token");
-  const [mode] = useState<ResetMode>(accessToken ? "update" : "request");
-  
+  const [mode, setMode] = useState<ResetMode>("request");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  // Check for recovery session from email link (hash fragment contains access_token)
+  useEffect(() => {
+    const checkRecoverySession = async () => {
+      // Supabase sends recovery links with hash fragments like:
+      // #access_token=...&type=recovery&...
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get("type");
+      
+      if (type === "recovery") {
+        // Let Supabase handle the hash and set up the session
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          toast({
+            variant: "destructive",
+            title: "Invalid or expired link",
+            description: "Please request a new password reset link.",
+          });
+          setCheckingSession(false);
+          return;
+        }
+        
+        if (data.session) {
+          // We have a valid recovery session, show the update password form
+          setMode("update");
+        }
+      }
+      
+      setCheckingSession(false);
+    };
+
+    // Listen for auth state changes (Supabase will fire PASSWORD_RECOVERY event)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setMode("update");
+        setCheckingSession(false);
+      }
+    });
+
+    checkRecoverySession();
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +150,15 @@ export default function ResetPassword() {
 
     setLoading(false);
   };
+
+  // Show loading while checking for recovery session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
