@@ -86,10 +86,11 @@ export default function Auth() {
     if (!validateForm()) return;
     
     setLoading(true);
+    const normalizedEmail = email.trim().toLowerCase();
 
     try {
       if (mode === "signin") {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(normalizedEmail, password);
         if (error) {
           let description = error.message;
           
@@ -112,7 +113,7 @@ export default function Auth() {
           navigate("/dashboard");
         }
       } else {
-        const { error } = await signUp(email, password, role, firstName, lastName);
+        const { error } = await signUp(normalizedEmail, password, role, firstName, lastName);
         if (error) {
           let description = error.message;
 
