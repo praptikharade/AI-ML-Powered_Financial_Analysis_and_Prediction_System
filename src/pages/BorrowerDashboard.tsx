@@ -8,7 +8,9 @@ import {
   XCircle,
   Plus,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -17,6 +19,11 @@ import { StatsCard } from "@/components/ui/StatsCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { RiskGauge } from "@/components/ui/RiskGauge";
+import { 
+  ExplainabilityPanel, 
+  generateMockFeatures, 
+  generateMockJustification 
+} from "@/components/ui/ExplainabilityPanel";
 
 interface Application {
   id: string;
@@ -40,6 +47,7 @@ export default function BorrowerDashboard() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [assessments, setAssessments] = useState<Record<string, Assessment>>({});
   const [loading, setLoading] = useState(true);
+  const [expandedApp, setExpandedApp] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -208,6 +216,9 @@ export default function BorrowerDashboard() {
               <div className="divide-y divide-border">
                 {applications.map((app) => {
                   const assessment = assessments[app.id];
+                  const isExpanded = expandedApp === app.id;
+                  const hasAssessment = assessment && assessment.risk_score !== null;
+                  
                   return (
                     <div
                       key={app.id}
@@ -240,17 +251,58 @@ export default function BorrowerDashboard() {
                           </div>
                         </div>
 
-                        {assessment && assessment.risk_score !== null && (
-                          <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4">
+                          {hasAssessment && (
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground mb-1">
                                 Risk Score
                               </p>
-                              <RiskGauge score={assessment.risk_score} size="sm" />
+                              <RiskGauge score={assessment.risk_score!} size="sm" />
                             </div>
-                          </div>
-                        )}
+                          )}
+                          
+                          {hasAssessment && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setExpandedApp(isExpanded ? null : app.id)}
+                              className="text-primary hover:text-primary/80"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="h-4 w-4 mr-1" />
+                                  Hide Details
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-4 w-4 mr-1" />
+                                  See Why
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Explainability Panel - Shows when expanded */}
+                      {isExpanded && hasAssessment && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-4"
+                        >
+                          <ExplainabilityPanel
+                            features={generateMockFeatures(assessment.risk_score!)}
+                            justification={
+                              assessment.notes || 
+                              generateMockJustification(assessment.risk_score!, app.status)
+                            }
+                            confidence={0.85 + (Math.random() * 0.1)}
+                          />
+                        </motion.div>
+                      )}
                     </div>
                   );
                 })}
