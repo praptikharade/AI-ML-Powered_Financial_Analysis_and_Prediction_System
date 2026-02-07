@@ -11,13 +11,16 @@ import {
   BarChart3,
   Lock,
   Zap,
-  LogIn
+  LogIn,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkflowDiagram } from "@/components/ui/WorkflowDiagram";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/contexts/AuthContext";
+import { RiskGauge } from "@/components/ui/RiskGauge";
+import { ExplainabilityPanel, generateMockFeatures, generateMockJustification } from "@/components/ui/ExplainabilityPanel";
 
 const features = [
   {
@@ -173,6 +176,74 @@ export default function Landing() {
           </motion.div>
 
           <WorkflowDiagram />
+        </div>
+      </section>
+
+      {/* Explainability Demo Section */}
+      <section className="py-20 lg:py-32">
+        <div className="container mx-auto px-4 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <Eye className="h-4 w-4" />
+              See the Why
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Complete Transparency for Every Decision
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Our SHAP-powered explainability shows borrowers exactly why they received 
+              their risk score — no black boxes.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="bg-card rounded-2xl border border-border p-6 lg:p-8">
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* Demo Application Card */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="font-medium text-foreground text-lg">
+                      Acme Tech Solutions
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium capitalize bg-risk-medium/10 text-risk-medium">
+                      pending
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                    <span>Amount: ₹50,00,000</span>
+                    <span>Purpose: Working Capital</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Risk Score</p>
+                      <RiskGauge score={45} size="md" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Explainability Panel Demo */}
+                <div className="flex-1">
+                  <ExplainabilityPanel
+                    features={generateMockFeatures(45)}
+                    justification={generateMockJustification(45, "pending")}
+                    confidence={0.87}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
