@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, LogOut, User, Settings } from "lucide-react";
+import { Menu, X, Moon, Sun, LogOut, User, Settings, HelpCircle, Info, Mail, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
@@ -17,6 +17,8 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -55,6 +57,17 @@ export function Navbar() {
     } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       setIsDark(true);
     }
+  }, []);
+
+  // Close settings dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setSettingsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const isActive = (path: string) => location.pathname === path;
@@ -157,11 +170,69 @@ export function Navbar() {
                 </Button>
               </>
             ) : (
-              <Link to="/auth" className="hidden lg:flex">
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </Link>
+              <div className="hidden lg:flex items-center gap-2">
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <div className="relative" ref={settingsRef}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                  >
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                  <AnimatePresence>
+                    {settingsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full mt-2 w-56 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden"
+                      >
+                        <div className="p-2 space-y-0.5">
+                          <Link
+                            to="/about"
+                            onClick={() => setSettingsOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                          >
+                            <Info className="h-4 w-4" />
+                            About ClariFin
+                          </Link>
+                          <Link
+                            to="/contact"
+                            onClick={() => setSettingsOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Contact Us
+                          </Link>
+                          <Link
+                            to="/about"
+                            onClick={() => setSettingsOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                          >
+                            <Shield className="h-4 w-4" />
+                            Privacy & Security
+                          </Link>
+                          <Link
+                            to="/about"
+                            onClick={() => setSettingsOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                          >
+                            <HelpCircle className="h-4 w-4" />
+                            Help & FAQ
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
             )}
 
             {/* Mobile Menu Button */}
