@@ -118,11 +118,11 @@ export default function Landing() {
                 </>
               ) : (
               <Link to="/auth">
-                    <Button variant="hero" size="xl">
+                    <Button variant="heroOutline" size="xl" className="border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                       <LogIn className="h-5 w-5" />
                       Sign In
                     </Button>
-                  </Link>
+                   </Link>
               )}
             </motion.div>
 
