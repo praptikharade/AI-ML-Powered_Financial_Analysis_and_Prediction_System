@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, LogOut, User } from "lucide-react";
+import { Menu, X, Moon, Sun, LogOut, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
@@ -157,18 +157,11 @@ export function Navbar() {
                 </Button>
               </>
             ) : (
-              <>
-                <Link to="/auth" className="hidden lg:block">
-                  <Button variant="ghost" size="sm">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth" className="hidden lg:block">
-                  <Button variant="hero" size="lg">
-                    Get Started
-                  </Button>
-                </Link>
-              </>
+              <Link to="/auth" className="hidden lg:flex">
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </Link>
             )}
 
             {/* Mobile Menu Button */}
