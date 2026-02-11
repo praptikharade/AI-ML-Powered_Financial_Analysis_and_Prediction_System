@@ -171,11 +171,6 @@ export function Navbar() {
               </>
             ) : (
               <div className="hidden lg:flex items-center gap-2">
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm">
-                    Sign In
-                  </Button>
-                </Link>
                 <div className="relative" ref={settingsRef}>
                   <Button
                     variant="ghost"
@@ -212,7 +207,7 @@ export function Navbar() {
                             Contact Us
                           </Link>
                           <Link
-                            to="/about"
+                            to="/privacy"
                             onClick={() => setSettingsOpen(false)}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
                           >
@@ -220,7 +215,7 @@ export function Navbar() {
                             Privacy & Security
                           </Link>
                           <Link
-                            to="/about"
+                            to="/faq"
                             onClick={() => setSettingsOpen(false)}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
                           >
