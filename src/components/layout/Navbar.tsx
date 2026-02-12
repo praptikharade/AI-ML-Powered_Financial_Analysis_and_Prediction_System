@@ -8,9 +8,6 @@ import logo from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/apply", label: "Apply for Assessment" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/portfolio", label: "Portfolio" },
   { href: "/about", label: "Technology" },
   { href: "/contact", label: "Contact" },
 ];
