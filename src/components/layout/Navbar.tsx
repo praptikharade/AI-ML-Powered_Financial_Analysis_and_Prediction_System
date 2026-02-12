@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Moon, Sun, LogOut, User, Settings, HelpCircle, Info, Mail, Shield } from "lucide-react";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 
-const navLinks = [
+const baseNavLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "Technology" },
   { href: "/contact", label: "Contact" },
@@ -25,6 +25,17 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
+
+  const navLinks = useMemo(() => {
+    const links = [...baseNavLinks];
+    if (user && profile?.role === "lender") {
+      links.push({ href: "/portfolio", label: "Portfolio" });
+    }
+    if (user && profile?.role === "borrower") {
+      links.push({ href: "/apply", label: "Apply for Assessment" });
+    }
+    return links;
+  }, [user, profile]);
 
   useEffect(() => {
     const handleScroll = () => {
