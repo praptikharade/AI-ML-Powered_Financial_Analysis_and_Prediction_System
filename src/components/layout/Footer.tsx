@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
-import { Shield, Mail, Linkedin, Twitter, User } from "lucide-react";
+import { Shield, Mail, Phone, MapPin } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { useAuth } from "@/contexts/AuthContext";
 
 export function Footer() {
-  const { user } = useAuth();
-
   return (
     <footer className="bg-muted/50 border-t border-border">
       <div className="container mx-auto px-4 lg:px-8 py-12 lg:py-16">
@@ -24,103 +21,74 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Platform */}
           <div>
             <h4 className="font-display font-semibold text-foreground mb-4">Platform</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/apply" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Risk Assessment
+                <Link to="/auth?role=lender" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  For Lender
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/portfolio" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Portfolio Analysis
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Technology
+                <Link to="/auth?role=borrower" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  For Borrower
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Account */}
+          {/* Terms */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Account</h4>
+            <h4 className="font-display font-semibold text-foreground mb-4">Our Terms</h4>
             <ul className="space-y-2">
-              {user ? (
-                <>
-                  <li>
-                    <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      My Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/apply" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      New Application
-                    </Link>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li>
-                    <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      Sign In
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                      Create Account
-                    </Link>
-                  </li>
-                </>
-              )}
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Documentation
-                </a>
+                <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Privacy & Security
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  API Reference
-                </a>
+                <Link to="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Help & FAQ
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Connect */}
           <div>
             <h4 className="font-display font-semibold text-foreground mb-4">Connect</h4>
-            <div className="flex items-center gap-3 mb-4">
-              <a
-                href="#"
-                className="p-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all"
-              >
-                <Linkedin className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                className="p-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all"
-              >
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                className="p-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-all"
-              >
-                <Mail className="h-4 w-4" />
-              </a>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              contact@clarifin.ai
-            </p>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="mailto:contact@clarifin.ai"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Mail className="h-4 w-4 shrink-0" />
+                  contact@clarifin.ai
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:+918765430002"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Phone className="h-4 w-4 shrink-0" />
+                  +91 8765430002
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://maps.google.com/?q=Plot+No.+2,+Sector-33,+Pethapada,+Kharghar,+Navi+Mumbai-410210"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+                  Plot No. 2, Sector-33, Pethapada, Kharghar, Navi Mumbai-410210, Maharashtra
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
