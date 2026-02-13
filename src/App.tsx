@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import ResetPassword from "./pages/ResetPassword";
 import Privacy from "./pages/Privacy";
 import FAQ from "./pages/FAQ";
+import ReviewApplication from "./pages/ReviewApplication";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardRouter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/review/:id"
+              element={
+                <ProtectedRoute allowedRoles={["lender"]}>
+                  <ReviewApplication />
                 </ProtectedRoute>
               }
             />

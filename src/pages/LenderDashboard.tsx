@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   FileSearch, 
@@ -61,6 +62,7 @@ const RISK_COLORS = {
 
 export default function LenderDashboard() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [pendingApplications, setPendingApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,22 +117,8 @@ export default function LenderDashboard() {
     { name: "High Risk", value: assessments.filter((a) => (a.risk_score || 0) > 66).length, color: RISK_COLORS.high },
   ];
 
-  const handleStartAssessment = async (applicationId: string) => {
-    if (!profile?.id) return;
-
-    // Create a new assessment
-    const { error } = await supabase.from("assessments").insert({
-      application_id: applicationId,
-      lender_id: profile.id,
-      status: "in_progress",
-    });
-
-    if (error) {
-      console.error("Error creating assessment:", error);
-    } else {
-      // Refresh the data
-      window.location.reload();
-    }
+  const handleStartReview = (applicationId: string) => {
+    navigate(`/review/${applicationId}`);
   };
 
   return (
@@ -239,7 +227,7 @@ export default function LenderDashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleStartAssessment(app.id)}
+                          onClick={() => handleStartReview(app.id)}
                         >
                           <FileSearch className="h-4 w-4 mr-2" />
                           Start Review
