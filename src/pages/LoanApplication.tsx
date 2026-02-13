@@ -9,7 +9,8 @@ import {
   Building2,
   ArrowRight,
   ArrowLeft,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const steps = [
   { id: 1, title: "Personal Info", icon: User },
@@ -49,7 +53,9 @@ const employmentTypes = [
 
 export default function LoanApplication() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -71,10 +77,47 @@ export default function LoanApplication() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    // Store form data for dashboard
-    localStorage.setItem("loanApplication", JSON.stringify(formData));
-    navigate("/dashboard");
+  const handleSubmit = async () => {
+    if (!profile?.id) {
+      toast.error("Please sign in to submit an application.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const insertData: any = {
+        borrower_id: profile.id,
+        company_name: formData.name || "Unnamed Applicant",
+        loan_amount: formData.loanAmount ? Number(formData.loanAmount) : null,
+        loan_purpose: formData.loanPurpose || null,
+        applicant_name: formData.name || null,
+        applicant_age: formData.age ? Number(formData.age) : null,
+        applicant_email: formData.email || null,
+        applicant_phone: formData.phone || null,
+        employment_type: formData.employmentType || null,
+        sector: formData.sector || null,
+        annual_income: formData.annualIncome ? Number(formData.annualIncome) : null,
+        years_employed: formData.yearsEmployed ? Number(formData.yearsEmployed) : null,
+        interest_rate: formData.interestRate ? Number(formData.interestRate) : null,
+        loan_term: formData.loanTerm ? Number(formData.loanTerm) : null,
+        credit_history_length: formData.creditHistoryLength ? Number(formData.creditHistoryLength) : null,
+        existing_loans: formData.existingLoans ? Number(formData.existingLoans) : null,
+        status: "pending",
+      };
+      const { error } = await supabase.from("applications").insert(insertData);
+
+      if (error) {
+        console.error("Error submitting application:", error);
+        toast.error("Failed to submit application. Please try again.");
+      } else {
+        toast.success("Application submitted successfully!");
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const canProceed = () => {
@@ -427,9 +470,18 @@ export default function LoanApplication() {
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <Button variant="glow" onClick={handleSubmit}>
-                  Assess Risk
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                <Button variant="glow" onClick={handleSubmit} disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Assess Risk
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
                 </Button>
               )}
             </div>

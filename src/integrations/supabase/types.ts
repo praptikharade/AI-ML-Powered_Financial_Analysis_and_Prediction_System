@@ -16,34 +16,70 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          annual_income: number | null
+          applicant_age: number | null
+          applicant_email: string | null
+          applicant_name: string | null
+          applicant_phone: string | null
           borrower_id: string
           company_name: string
           created_at: string
+          credit_history_length: number | null
+          employment_type: string | null
+          existing_loans: number | null
           id: string
+          interest_rate: number | null
           loan_amount: number | null
           loan_purpose: string | null
+          loan_term: number | null
+          sector: string | null
           status: string
           updated_at: string
+          years_employed: number | null
         }
         Insert: {
+          annual_income?: number | null
+          applicant_age?: number | null
+          applicant_email?: string | null
+          applicant_name?: string | null
+          applicant_phone?: string | null
           borrower_id: string
           company_name: string
           created_at?: string
+          credit_history_length?: number | null
+          employment_type?: string | null
+          existing_loans?: number | null
           id?: string
+          interest_rate?: number | null
           loan_amount?: number | null
           loan_purpose?: string | null
+          loan_term?: number | null
+          sector?: string | null
           status?: string
           updated_at?: string
+          years_employed?: number | null
         }
         Update: {
+          annual_income?: number | null
+          applicant_age?: number | null
+          applicant_email?: string | null
+          applicant_name?: string | null
+          applicant_phone?: string | null
           borrower_id?: string
           company_name?: string
           created_at?: string
+          credit_history_length?: number | null
+          employment_type?: string | null
+          existing_loans?: number | null
           id?: string
+          interest_rate?: number | null
           loan_amount?: number | null
           loan_purpose?: string | null
+          loan_term?: number | null
+          sector?: string | null
           status?: string
           updated_at?: string
+          years_employed?: number | null
         }
         Relationships: [
           {
