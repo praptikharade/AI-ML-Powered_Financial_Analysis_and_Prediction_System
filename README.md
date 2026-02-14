@@ -1,73 +1,20 @@
-# Welcome to your Lovable project
+# AI/ML - Powered-Financial-Analysis-and-Prediction-System
+This repository hosts the Credit Risk Assessment and Decision Support System, a comprehensive solution designed to predict loan default risk and provide actionable insights for financial institutions. The system integrates machine learning and explainable AI to enable accurate, transparent, and data-driven decision-making.
+# Key Features-
+# 1. Borrower Risk Prediction:
+Utilizes XGBoost, a high-performance gradient boosting algorithm, to predict the likelihood of borrower default based on historical and current financial data.
 
-## Project info
+# 2. Explainability with SHAP:
+Implements SHAP (SHapley Additive exPlanations) to provide clear feature-level explanations, helping decision-makers understand why a borrower is flagged as high or low risk.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+# 3. Sector-Level Trend Analysis:
+Incorporates a GRU (Gated Recurrent Unit) model to forecast sectoral trends and analyze the impact of macroeconomic indicators on risk patterns.
 
-## How can I edit this code?
+# 4. Live Data Simulation:
+Enables real-time testing of the system using simulated live data streams, ensuring robustness and reliability in dynamic financial scenarios.
 
-There are several ways of editing your application.
+# 5. Interactive Dashboard:
+A Power BI dashboard presents key metrics, borrower profiles, risk scores, and sector trends through intuitive visualizations and interactive filters, allowing quick and actionable insights.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# 6. Decision Support:
+Combines predictive modeling and explainability to support final credit decisions, helping lenders optimize portfolio management while minimizing risk exposure.
